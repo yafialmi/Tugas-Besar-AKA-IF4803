@@ -5,14 +5,14 @@ import 'package:get/get.dart';
 import 'package:manajemen_gudang/colors/color.dart';
 
 
-class SplashScreenPage extends StatefulWidget {
-  const SplashScreenPage({super.key});
+class SplashScreenView extends StatefulWidget {
+  const SplashScreenView({super.key});
 
   @override
-  State<SplashScreenPage> createState() => _SplashScreenPageState();
+  State<SplashScreenView> createState() => _SplashScreenViewState();
 }
 
-class _SplashScreenPageState extends State<SplashScreenPage> {
+class _SplashScreenViewState extends State<SplashScreenView> {
   @override
   void initState() {
     Timer(const Duration(seconds: 2), () {
