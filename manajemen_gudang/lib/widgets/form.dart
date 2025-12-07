@@ -70,7 +70,7 @@ class FormFieldWidgets extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
       child: TextFormField(
         onTapOutside: (event) => FocusScope.of(context).unfocus(),
         controller: controller,
@@ -92,11 +92,12 @@ class FormFieldWidgets extends StatelessWidget {
             borderSide: const BorderSide(color: AppColor.primary, width: 1.0),
           ),
           hintStyle: const TextStyle(color: AppColor.placeholder),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
           hintText: hintText,
           contentPadding: const EdgeInsets.all(20),
           fillColor: Colors.white,
           focusColor: AppColor.primary,
+          prefixIcon: Icon(Icons.search, color: AppColor.textBlack),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           prefixIconColor: Colors.black,
           disabledBorder: OutlineInputBorder(

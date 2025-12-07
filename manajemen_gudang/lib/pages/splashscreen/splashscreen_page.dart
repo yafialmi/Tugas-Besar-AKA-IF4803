@@ -5,24 +5,15 @@ import 'package:get/get.dart';
 import 'package:manajemen_gudang/colors/color.dart';
 
 
-class SplashScreenView extends StatefulWidget {
+class SplashScreenView extends StatelessWidget {
   const SplashScreenView({super.key});
 
   @override
-  State<SplashScreenView> createState() => _SplashScreenViewState();
-}
-
-class _SplashScreenViewState extends State<SplashScreenView> {
-  @override
-  void initState() {
+  Widget build(BuildContext context) {
     Timer(const Duration(seconds: 2), () {
       Get.offNamed('/dashboard');
     });
-    super.initState();
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.text,
       body: Center(
