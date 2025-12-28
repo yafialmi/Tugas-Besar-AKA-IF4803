@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "181110594914",
+    "project_id": "manajemen-barang-aka",
+    "storage_bucket": "manajemen-barang-aka.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:181110594914:android:c0ed0f155ca6af83a8203b",
+        "android_client_info": {
+          "package_name": "com.example.manajemen_gudang"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZMVVmCWrglof3U0FAei-C1QN7Ahv03sQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

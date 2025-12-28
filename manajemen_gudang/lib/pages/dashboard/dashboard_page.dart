@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:manajemen_gudang/colors/color.dart';
-import 'package:manajemen_gudang/pages/dashboard/dashboard_controller.dart';
-import 'package:manajemen_gudang/widgets/form.dart';
+import 'package:manajemen_gudang/controllers/dashboard_controller.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -14,8 +13,9 @@ class DashboardView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          'Manajemen Barang Gudang',
+        leading: SizedBox(),
+        title: Text(
+          'Manajemen Barang',
           style: TextStyle(color: AppColor.text, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -26,16 +26,93 @@ class DashboardView extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            FormFieldWidgets(
-              errorMessage: '',
-              labelText: 'Cari Barang',
-              hintText: 'Cari Barang',
-              controller: TextEditingController(),
-            ),
-            HeaderItems(),
             Obx(() {
-              if (controller.itemList.isEmpty) {
-                return const Center(child: Text("Daftar bacaan kosong!"));
+              if (controller.barangList.isEmpty) {
+                return const Center(child: Text("Daftar barang kosong!"));
+              }
+              return SizedBox(
+                height: 48,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () =>
+                      controller.getBarang()
+                        ..whenComplete(
+                              () =>
+                              Get.snackbar(
+                                "INFO!",
+                                "Data kembali semula",
+                                backgroundColor: AppColor.danger,
+                                colorText: AppColor.text,
+                                isDismissible: true,
+                                margin: EdgeInsets.all(12),
+                                snackPosition: SnackPosition.BOTTOM,
+                              ),
+                        ),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: AppColor.primary,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Default',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => controller.sortKategoriIteratif(),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: AppColor.primary,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Iteratif',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => controller.sortKategoriRekursif(),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: AppColor.primary,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Rekursif',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],),
+              );
+            }),
+            HeaderItems(),
+
+            Obx(() {
+              if (controller.barangList.isEmpty) {
+                return const Center(child: Text("Daftar barang kosong!"));
               }
               return Expanded(child: ListItem(controller: controller));
             }),
@@ -63,9 +140,9 @@ class ListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.separated(
       shrinkWrap: true,
-      itemCount: controller.itemList.length,
+      itemCount: controller.barangList.length,
       itemBuilder: (context, index) {
-        final item = controller.itemList[index];
+        final item = controller.barangList[index];
         return Card(
           elevation: 4,
           child: ListTile(
@@ -73,19 +150,9 @@ class ListItem extends StatelessWidget {
             tileColor: Colors.white,
             enableFeedback: true,
             title: Text(item.nama, style: TextStyle(color: AppColor.textBlack)),
-            trailing: IconButton(
-              onPressed: () {
-                Get.defaultDialog(
-                  title: "Konfirmasi",
-                  middleText: "Apakah kamu yakin ingin menghapus ${item.nama}?",
-                  textConfirm: "Ya",
-                  textCancel: "Tidak",
-                  confirmTextColor: AppColor.text,
-                  buttonColor: AppColor.primary,
-                  onConfirm: () => controller.deleteItem(item.id),
-                );
-              },
-              icon: Icon(Icons.delete, color: AppColor.danger),
+            trailing: Text(
+              item.stok.toString(),
+              style: TextStyle(color: AppColor.textBlack, fontSize: 18),
             ),
             shape: const RoundedRectangleBorder(
               side: BorderSide(color: AppColor.primary),
@@ -100,6 +167,7 @@ class ListItem extends StatelessWidget {
     );
   }
 }
+
 
 class HeaderItems extends StatelessWidget {
   const HeaderItems({super.key});
@@ -121,7 +189,7 @@ class HeaderItems extends StatelessWidget {
               'Nama Barang',
               style: TextStyle(color: AppColor.text, fontSize: 18),
             ),
-            Text('Aksi', style: TextStyle(color: AppColor.text, fontSize: 18)),
+            Text('Stok', style: TextStyle(color: AppColor.text, fontSize: 18)),
           ],
         ),
       ),
