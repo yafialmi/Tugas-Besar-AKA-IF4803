@@ -55,24 +55,54 @@ class CreateView extends StatelessWidget {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Obx(
-                  () => CustomCreateTextButton(
-                    normalText: '',
-                    boldText: 'Submit',
-                    buttonFunction: () {
-                      if (controller.formKey.currentState!.validate()) {
-                        controller.postBarang(
-                          controller.cNama.text,
-                          int.parse(controller.cStok.text),
-                          controller.cKategori.text,
-                        );
-                      }
-                    },
-                    condition: controller.isLoading.value,
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 0),
+                    child: Obx(
+                      () => CustomCreateTextButton(
+                        normalText: '',
+                        boldText: 'Tambah Barang 100',
+                        buttonFunction: () {
+                           controller.seedBarang100();
+                        },
+                        condition: controller.isLoading.value,
+                      ),
+                    ),
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 0),
+                    child: Obx(
+                      () => CustomCreateTextButton(
+                        normalText: '',
+                        boldText: 'Tambah Barang 1000',
+                        buttonFunction: () {
+                          controller.seedBarang1000();
+                        },
+                        condition: controller.isLoading.value,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 0),
+                    child: Obx(
+                      () => CustomCreateTextButton(
+                        normalText: '',
+                        boldText: 'Submit',
+                        buttonFunction: () {
+                          if (controller.formKey.currentState!.validate()) {
+                            controller.postBarang(
+                              controller.cNama.text,
+                              int.parse(controller.cStok.text),
+                              controller.cKategori.text,
+                            );
+                          }
+                        },
+                        condition: controller.isLoading.value,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

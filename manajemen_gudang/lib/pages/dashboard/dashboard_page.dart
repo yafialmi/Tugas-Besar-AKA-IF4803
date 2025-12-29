@@ -30,17 +30,33 @@ class DashboardView extends StatelessWidget {
               if (controller.barangList.isEmpty) {
                 return const Center(child: Text("Daftar barang kosong!"));
               }
-              return SizedBox(
-                height: 48,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () =>
-                      controller.getBarang()
-                        ..whenComplete(
-                              () =>
-                              Get.snackbar(
+              return Column(
+                children: [
+                  FutureBuilder<int>(
+                    future: controller.getTotalBarang(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Text("Loading...");
+                      }
+                      return Text(
+                        "Total Barang: ${snapshot.data}",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                  ),
+
+                  SizedBox(
+                    height: 48,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () => controller.getBarang()
+                            ..whenComplete(
+                              () => Get.snackbar(
                                 "INFO!",
                                 "Data kembali semula",
                                 backgroundColor: AppColor.danger,
@@ -49,63 +65,66 @@ class DashboardView extends StatelessWidget {
                                 margin: EdgeInsets.all(12),
                                 snackPosition: SnackPosition.BOTTOM,
                               ),
-                        ),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 6),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: AppColor.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Default',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
+                            ),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColor.primary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Default',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () => controller.sortKategoriIteratif(),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 6),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: AppColor.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Iteratif',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
+                        InkWell(
+                          onTap: () => controller.sortKategoriIteratif(),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColor.primary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Iteratif',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () => controller.sortKategoriRekursif(),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 6),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: AppColor.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Rekursif',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
+                        InkWell(
+                          onTap: () => controller.sortKategoriRekursifWrapper(),
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColor.primary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Rekursif',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],),
+                  ),
+                ],
               );
             }),
             HeaderItems(),
@@ -119,12 +138,36 @@ class DashboardView extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColor.primary,
-        child: Icon(Icons.add, color: AppColor.text),
-        onPressed: () {
-          Get.toNamed('/create');
-        },
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            backgroundColor: AppColor.danger,
+            child: Icon(Icons.delete, color: AppColor.text),
+            onPressed: () {
+              Get.defaultDialog(
+                title: "INFORMASI",
+                middleText: "Tindakan ini akan menghapus SEMUA data barang.",
+                textConfirm: "YA, HAPUS",
+                textCancel: "BATAL",
+                confirmTextColor: AppColor.text,
+                buttonColor: AppColor.danger,
+                onConfirm: () {
+                  Get.back();
+                  controller.deleteAllBarang();
+                },
+              );
+            },
+          ),
+          SizedBox(width: 25),
+          FloatingActionButton(
+            backgroundColor: AppColor.primary,
+            child: Icon(Icons.add, color: AppColor.text),
+            onPressed: () {
+              Get.toNamed('/create');
+            },
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -143,23 +186,31 @@ class ListItem extends StatelessWidget {
       itemCount: controller.barangList.length,
       itemBuilder: (context, index) {
         final item = controller.barangList[index];
-        return Card(
-          elevation: 4,
-          child: ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 8),
-            tileColor: Colors.white,
-            enableFeedback: true,
-            title: Text(item.nama, style: TextStyle(color: AppColor.textBlack)),
-            trailing: Text(
-              item.stok.toString(),
-              style: TextStyle(color: AppColor.textBlack, fontSize: 18),
+        if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        } else {
+          return Card(
+            elevation: 4,
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              tileColor: Colors.white,
+              enableFeedback: true,
+              subtitle: Text("No.Barang: ${index + 1}"),
+              title: Text(
+                item.nama,
+                style: TextStyle(color: AppColor.textBlack),
+              ),
+              trailing: Text(
+                item.stok.toString(),
+                style: TextStyle(color: AppColor.textBlack, fontSize: 18),
+              ),
+              shape: const RoundedRectangleBorder(
+                side: BorderSide(color: AppColor.primary),
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
             ),
-            shape: const RoundedRectangleBorder(
-              side: BorderSide(color: AppColor.primary),
-              borderRadius: BorderRadius.all(Radius.circular(8)),
-            ),
-          ),
-        );
+          );
+        }
       },
       separatorBuilder: (context, index) {
         return const SizedBox(height: 5);
@@ -167,7 +218,6 @@ class ListItem extends StatelessWidget {
     );
   }
 }
-
 
 class HeaderItems extends StatelessWidget {
   const HeaderItems({super.key});

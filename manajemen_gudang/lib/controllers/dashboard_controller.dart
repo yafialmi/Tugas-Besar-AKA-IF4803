@@ -8,6 +8,7 @@ class DashboardController extends GetxController {
   final CollectionReference barangCollection = FirebaseFirestore.instance
       .collection('barang');
   RxList<ItemModel> barangList = <ItemModel>[].obs;
+  final isLoading = false.obs;
 
   @override
   void onInit() {
@@ -16,11 +17,18 @@ class DashboardController extends GetxController {
   }
 
   Future getBarang() async {
-    barangCollection.snapshots().listen((event) {
-      barangList.value = event.docs
-          .map((doc) => ItemModel.fromDocumentSnapshot(doc))
-          .toList();
-    });
+    try {
+      isLoading.value = true;
+      barangCollection.snapshots().listen((event) {
+        barangList.value = event.docs
+            .map((doc) => ItemModel.fromDocumentSnapshot(doc))
+            .toList();
+      });
+    } catch (error) {
+      throw Exception(error);
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // ===============================
@@ -53,18 +61,17 @@ class DashboardController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
     );
 
-
     barangList.value = data;
   }
 
   // ===============================
   // 2️⃣ BUBBLE SORT REKURSIF
   // ===============================
-  void sortKategoriRekursif() {
+  void sortKategoriRekursifWrapper() {
     final stopwatch = Stopwatch()..start();
 
     List<ItemModel> data = List.from(barangList);
-    sortKategoriRekursifAsc(data, data.length);
+    sortKategoriRekursif(data, data.length);
 
     stopwatch.stop();
     Get.snackbar(
@@ -79,17 +86,72 @@ class DashboardController extends GetxController {
     barangList.value = data;
   }
 
-  void sortKategoriRekursifAsc(List<ItemModel> data, int n) {
+  void sortKategoriRekursif(List<ItemModel> data, int n) {
     if (n <= 1) return;
 
     for (int i = 0; i < n - 1; i++) {
-      if (data[i].nama.compareTo(data[i + 1].nama) > 0) {
+      if (data[i].stok > data[i + 1].stok) {
         final temp = data[i];
         data[i] = data[i + 1];
         data[i + 1] = temp;
       }
     }
 
-    sortKategoriRekursifAsc(data, n - 1);
+    sortKategoriRekursif(data, n - 1);
+  }
+
+  Future<void> deleteAllBarang() async {
+    try {
+      final firestore = FirebaseFirestore.instance;
+      final collection = firestore.collection('barang');
+
+      final snapshot = await collection.get();
+
+      if (snapshot.docs.isEmpty) {
+        Get.snackbar(
+          "Info",
+          "Tidak ada data untuk dihapus",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      final batch = firestore.batch();
+
+      for (final doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      await batch.commit();
+
+      barangList.clear();
+
+      Get.snackbar(
+        "Berhasil",
+        "Semua data barang berhasil dihapus",
+        backgroundColor: AppColor.success,
+        colorText: AppColor.text,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: EdgeInsets.all(12),
+      );
+    } catch (e) {
+      Get.snackbar(
+        "Gagal",
+        e.toString(),
+        backgroundColor: AppColor.danger,
+        colorText: AppColor.text,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: EdgeInsets.all(12),
+      );
+    }
+  }
+
+  Future<int> getTotalBarang() async {
+    final aggregateQuery = await FirebaseFirestore.instance
+        .collection('barang')
+        .count()
+        .get();
+
+    return aggregateQuery.count!;
   }
 }
